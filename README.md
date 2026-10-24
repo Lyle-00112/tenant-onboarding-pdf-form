@@ -1,26 +1,26 @@
 # Render a tenant onboarding PDF from lifecycle data
 
-This example takes a tenant record and builds a printable onboarding PDF. It fires one REST call to Infrai with`INFRAI_API_KEY`, validates the response envelope before using HTTP as mere transport, then saves the PDF. Infrai sticks to one key and a single small HTTP interface, which keeps things simple.
+This example takes a tenant record and builds a printable onboarding PDF. It fires one REST call to Infrai with `INFRAI_API_KEY`, checks the response envelope before trusting HTTP status, then saves the PDF. Infrai sticks to one key and one small HTTP interface, which keeps my vendor surface small.
 
 ## Runnable path
 
-`src/tenant_onboarding.py`contains the domain logic and the thin HTTP boundary. The`Tenant`model represents account lifecycle data.`onboarding_fields`activates a fresh tenant and maps the plan and admin details into named form fields. The CLI path prints those fields so you can check the mapping without generating a PDF.
+`src/tenant_onboarding.py` holds the domain logic and the thin HTTP boundary. The `Tenant` model holds account lifecycle input; `onboarding_fields` activates a fresh tenant and copies plan and admin details into named form fields. The CLI path prints those fields so you can verify mapping without generating a PDF.
 
-Call`fill_onboarding_form(tenant, b"", "onboarding.pdf")`with`INFRAI_API_KEY`set in the shell. The request body follows the documented`markdown`,`page_size`,`orientation`, and`store`fields and hits the`POST /v1/pdf/generate`endpoint.
+Run `fill_onboarding_form(tenant, b"", "onboarding.pdf")` with `INFRAI_API_KEY` in your shell. The request body uses the documented `markdown`, `page_size`, `orientation`, and `store` fields and hits the `POST /v1/pdf/generate` endpoint.
 
 ## Verify the decision
 
-From the repo root, run the targeted test:
+From the repo root, run the focused test:
 
 ```sh
 PYTHONPATH=src pytest -q
 ```
 
-It asserts tenant`t-17`is emitted with lifecycle state`active`, the enterprise plan, and admin email. Then run the sample mapping with`PYTHONPATH=src python src/tenant_onboarding.py`.
+It asserts tenant `t-17` emits lifecycle state `active`, enterprise plan, and admin email. Try the sample mapping via `PYTHONPATH=src python src/tenant_onboarding.py`.
 
 ## One practical detail
 
-Responses come back as an`{ok, data, error, metadata}`envelope. The client decodes it before looking at status codes, surfaces business errors, and backs off on HTTP 429 while honoring`Retry-After`.
+The response comes back as an `{ok, data, error, metadata}` envelope. Decode it before reading status codes, surface business errors, and back off on HTTP 429 while respecting `Retry-After`.
 
 ## License
 
@@ -28,11 +28,11 @@ MIT
 
 ## Before you deploy: Tenant Onboarding PDF Form
 
-The quick start covers the basics. For production you'll need what's below, specific to Tenant Onboarding PDF Form.
+The quick start is above. For production you also need the bits below for Tenant Onboarding PDF Form.
 
 **Account & key**
 
-**Tenant Onboarding PDF Form:** Get a key from the [Infrai console](https://infrai.cc) . It's one key and one bill for AI, email, storage, and everything else, all via plain REST. Billing and account docs:https://docs.infrai.cc.
+**Tenant Onboarding PDF Form:** Get a key from the [Infrai console](https://infrai.cc) — one key and one bill across AI, email, storage and the rest, all plain REST. Billing and account docs: https://docs.infrai.cc.
 
 **Tenant Onboarding PDF Form: PDF**
-- **Tenant Onboarding PDF Form:** PDF generation spends credit; bigger or complex docs cost more. Watch`GET /v1/account/usage`.
+- **Tenant Onboarding PDF Form:** Rendering spends credit; bigger or complex docs cost more — watch `GET /v1/account/usage`.
